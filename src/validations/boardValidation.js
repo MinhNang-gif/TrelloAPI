@@ -1,3 +1,4 @@
+// Dung joi de validate du lieu
 import Joi from 'joi'
 import { StatusCodes } from 'http-status-codes'
 
@@ -20,12 +21,11 @@ const createNew = async (req, res, next) => {
   })
 
   try {
-    console.log('req.body: ', req.body) // res.body la du lieu nhan duoc tu FE
-    await correctCondition.validateAsync(req.body, { abortEarly: false }) // kiem tra du lieu nhan duoc tu FE co thoa voi correctCondition kh, abortEarly: false de no console.log ra het loi
-    // next() // chuyen tiep req den noi khac
-    res.status(StatusCodes.CREATED).json({ message: 'POST From Validation: API create new board' })
+    // kiem tra du lieu nhan duoc tu FE co thoa voi correctCondition kh, abortEarly: false de no console.log ra het loi
+    await correctCondition.validateAsync(req.body, { abortEarly: false })
+    // Validate du lieu hop le thi cho request di tiep den tang Controller
+    next()
   } catch (error) {
-    console.log(error)
     // Du lieu nay de tra ve postman
     res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
       errors: new Error(error).message
