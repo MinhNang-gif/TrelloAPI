@@ -2,6 +2,7 @@
 
 import Joi from 'joi'
 import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
+import { GET_DB } from '~/config/mongodb'
 
 const BOARD_COLLECTION_NAME = 'boards'
 const BOARD_COLLECTION_SCHEMA = Joi.object({
@@ -17,7 +18,30 @@ const BOARD_COLLECTION_SCHEMA = Joi.object({
   _destroy: Joi.boolean().default(false)
 })
 
+const createNew = async (data) => { // data la du lieu nhan duoc phia service
+  try {
+    const createdBoard = await GET_DB().collection(BOARD_COLLECTION_NAME).insertOne(data)
+    return createdBoard
+  } catch (error) {
+    throw new Error(error) // dung new Error thi moi tra ve stack trace, con error thi kh
+  }
+}
+
+// Choc vao database mot lan nua de lay toan bo du lieu tu db (db compass) ve (postman) de hien thi cho nguoi dung dua vao id
+const getOneById = async (id) => {
+  try {
+    const result = await GET_DB().collection(BOARD_COLLECTION_NAME).findOne({ // findOne nhan id duoi dang ObjectId chu kh phai string
+      _id: id
+    })
+    return result
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 export const boardModel = {
   BOARD_COLLECTION_NAME,
-  BOARD_COLLECTION_SCHEMA
+  BOARD_COLLECTION_SCHEMA,
+  createNew,
+  getOneById
 }
