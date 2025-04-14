@@ -2,6 +2,7 @@
 /* Tang service: xu ly logic du lieu theo dac thu du an */
 
 import { slugify } from '~/utils/formatters'
+import { boardModel } from '~/models/boardModel'
 
 const createNew = async (reqBody) => {
   try {
@@ -12,10 +13,15 @@ const createNew = async (reqBody) => {
     }
 
     // Goi toi tang Model de xu ly luu ban ghi newBoard vao Database
+    const createdBoard = await boardModel.createNew(newBoard)
+    console.log('createdBoard: ', createdBoard)
 
+    // Lay ban ghi board sau khi tao (tuy vao du an ma co thuc hien buoc nay kh)
+    const getNewBoard = await boardModel.getOneById(createdBoard.insertedId)
+    console.log('getNewBoard: ', getNewBoard)
 
     // Tat ca cac ham trong service deu can return de ben controller nhan duoc ket qua tra ve
-    return newBoard
+    return getNewBoard
   } catch (error) {
     throw error // tu tang service tro di thi chi can throw error vi phan error da duoc xu ly tap trung o tang controller
   }
