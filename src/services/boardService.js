@@ -3,6 +3,8 @@
 
 import { slugify } from '~/utils/formatters'
 import { boardModel } from '~/models/boardModel'
+import ApiError from '~/utils/ApiError'
+import { StatusCodes } from 'http-status-codes'
 
 const createNew = async (reqBody) => {
   try {
@@ -18,13 +20,27 @@ const createNew = async (reqBody) => {
     // Lay ban ghi board sau khi tao (tuy vao du an ma co thuc hien buoc nay kh)
     const getNewBoard = await boardModel.getOneById(createdBoard.insertedId)
 
-    // Tat ca cac ham trong service deu can return de ben controller nhan duoc ket qua tra ve
+    // Tat ca cac ham tu service ve sau deu can return de ben controller nhan duoc ket qua tra ve
     return getNewBoard
   } catch (error) {
-    throw error // tu tang service tro di thi chi can throw error vi phan error da duoc xu ly tap trung o tang controller
+    throw error // chi can throw error vi phan error da duoc xu ly tap trung o tang controller
+  }
+}
+
+const getDetails = async (boardId) => {
+  try {
+    const board = await boardModel.getDetails(boardId)
+
+    if (!board)
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Board not found')
+
+    return board
+  } catch (error) {
+    throw error
   }
 }
 
 export const boardService = {
-  createNew
+  createNew,
+  getDetails
 }
