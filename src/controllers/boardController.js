@@ -7,8 +7,6 @@ const createNew = async (req, res, next) => {
     // console.log('req.query: ', req.query)
     // console.log('req.params: ', req.params)
 
-    // throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'test api error')
-
     // Dieu huong du lieu sang tang service
     const createdBoard = await boardService.createNew(req.body)
 
@@ -19,6 +17,17 @@ const createNew = async (req, res, next) => {
   }
 }
 
+const getDetails = async (req, res, next) => {
+  try {
+    const boardId = req.params.id // id nay nhan duoc tu /:id ben boardRoute
+    const board = await boardService.getDetails(boardId)
+    res.status(StatusCodes.OK).json(board)
+  } catch (error) {
+    next(error)
+  }
+}
+
 export const boardController = {
-  createNew
+  createNew,
+  getDetails
 }

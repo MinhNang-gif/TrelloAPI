@@ -11,4 +11,8 @@ Router.route('')
   })
   .post(boardValidation.createNew, boardController.createNew) // chi khoi tao chu kh goi ham createNew
 
+Router.route('/:id')
+  .get(boardController.getDetails)
+  .put() // update
+
 export const boardRoute = Router
