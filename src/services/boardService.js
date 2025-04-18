@@ -5,6 +5,7 @@ import { slugify } from '~/utils/formatters'
 import { boardModel } from '~/models/boardModel'
 import ApiError from '~/utils/ApiError'
 import { StatusCodes } from 'http-status-codes'
+import { cloneDeep } from 'lodash'
 
 const createNew = async (reqBody) => {
   try {
@@ -34,7 +35,19 @@ const getDetails = async (boardId) => {
     if (!board)
       throw new ApiError(StatusCodes.NOT_FOUND, 'Board not found')
 
-    return board
+    /* Xu ly du lieu columns va cards cua BE (columns va cards dang cung cap nhau) sang giong voi FE (cards long trong cap columns) de dong bo du lieu */
+    // B1. Dung cloneDeep de tao ra mot cai moi de xu ly, kh lien quan toi cai cu
+    const resBoard = cloneDeep(board)
+
+    // B2. Dua card ve dung column cua no
+    resBoard.columns.forEach(column => {
+      column.cards = resBoard.cards.filter(card => card.columnId.equals(column._id))
+    })
+
+    // B3. Xoa mang cards trong resBoard de du lieu giong voi FE
+    delete resBoard.cards
+
+    return resBoard
   } catch (error) {
     throw error
   }
