@@ -1,4 +1,3 @@
-/* eslint-disable no-useless-catch */
 /* Tang service: xu ly logic du lieu theo dac thu du an */
 
 import { slugify } from '~/utils/formatters'
@@ -18,7 +17,7 @@ const createNew = async (reqBody) => {
     // Goi toi tang Model de xu ly luu ban ghi newBoard vao Database
     const createdBoard = await boardModel.createNew(newBoard)
 
-    // Lay ban ghi board sau khi tao (tuy vao du an ma co thuc hien buoc nay kh)
+    // Lay toan bo du lieu tu ban ghi sau khi tao (tuy vao du an ma co thuc hien buoc nay kh)
     const getNewBoard = await boardModel.getOneById(createdBoard.insertedId)
 
     // Tat ca cac ham tu service ve sau deu can return de ben controller nhan duoc ket qua tra ve

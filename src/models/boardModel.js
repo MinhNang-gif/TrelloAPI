@@ -1,5 +1,4 @@
 /* Model layer: define collection (name & schema) */
-
 import Joi from 'joi'
 import { ObjectId } from 'mongodb'
 import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
@@ -17,7 +16,6 @@ const BOARD_COLLECTION_SCHEMA = Joi.object({
 
   // Cac item trong mang columnOrderIds la ObjectId nen can them pattern
   columnOrderIds: Joi.array().items(Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)).default([]),
-
   createdAt: Joi.date().timestamp('javascript').default(Date.now),
   updatedAt: Joi.date().timestamp('javascript').default(null),
   _destroy: Joi.boolean().default(false)
@@ -90,11 +88,26 @@ const getDetails = async (boardId) => {
   }
 }
 
+// Func xu ly them columnId vao cuoi mang columnOrderIds trong collection board
+const pushColumnOrderIds = async (column) => {
+  try {
+    const result = await GET_DB().collection(BOARD_COLLECTION_NAME).findOneAndUpdate(
+      { _id: new ObjectId(column.boardId) }, // dieu kien de tim kiem collection board chua column nay
+      { $push: { columnOrderIds: new ObjectId(column._id) } }, // push vao cai gi
+      { returnDocument: 'after' } // tra ve collection sau khi update
+    )
+    return result.value
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 export const boardModel = {
   BOARD_COLLECTION_NAME,
   BOARD_COLLECTION_SCHEMA,
   createNew,
   getOneById,
-  getDetails
+  getDetails,
+  pushColumnOrderIds
 }
 
