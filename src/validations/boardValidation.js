@@ -36,6 +36,7 @@ const createNew = async (req, res, next) => {
 }
 
 const update = async (req, res, next) => {
+  /// Truong hop update thi kh goi ham required()
   const correctCondition = Joi.object({
     title: Joi.string().min(3).max(50).trim().strict(),
     description: Joi.string().min(3).max(256).trim().strict(),
