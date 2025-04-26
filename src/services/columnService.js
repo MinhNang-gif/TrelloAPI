@@ -11,7 +11,6 @@ const createNew = async (reqBody) => {
     const createdColumn = await columnModel.createNew(newColumn)
     const getNewColumn = await columnModel.getOneById(createdColumn.insertedId)
 
-
     if (getNewColumn) {
       // Xu ly cau truc data truoc khi tra data ve
       getNewColumn.cards = []
@@ -26,20 +25,20 @@ const createNew = async (reqBody) => {
   }
 }
 
-// const getDetails = async (columnId) => {
-//   try {
-//     const column = await columnModel.getDetails(columnId)
-
-//     if (!column)
-//       throw new ApiError(StatusCodes.NOT_FOUND, 'Column not found')
-
-//     return column
-//   } catch (error) {
-//     throw error
-//   }
-// }
+const update = async (columnId, reqBody) => {
+  try {
+    const updateData = {
+      ...reqBody,
+      updatedAt: Date.now()
+    }
+    const updatedColumn = await columnModel.update(columnId, updateData)
+    return updatedColumn
+  } catch (error) {
+    throw error
+  }
+}
 
 export const columnService = {
-  createNew
-  // getDetails
+  createNew,
+  update
 }
