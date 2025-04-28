@@ -1,10 +1,11 @@
 /* Tang service: xu ly logic du lieu theo dac thu du an */
-
 import { slugify } from '~/utils/formatters'
 import { boardModel } from '~/models/boardModel'
 import ApiError from '~/utils/ApiError'
 import { StatusCodes } from 'http-status-codes'
 import { cloneDeep } from 'lodash'
+import { columnModel } from '~/models/columnModel'
+import { cardModel } from '~/models/cardModel'
 
 const createNew = async (reqBody) => {
   try {
@@ -65,8 +66,34 @@ const update = async (boardId, resBody) => {
   }
 }
 
+const moveCardToDifferentColumn = async (resBody) => {
+  try {
+    // B1: Cap nhat lai mang cardOrderIds ben column cu (xoa _id cua card ra khoi mang cardOrderIds)
+    await columnModel.update(resBody.prevColumnId, {
+      cardOrderIds: resBody.prevCardOrderIds,
+      createdAt: Date.now()
+    })
+
+    // B2: Cap nhat lai mang cardOrderIds ben column moi (them _id cua card vao mang cardOrderIds)
+    await columnModel.update(resBody.nextColumnId, {
+      cardOrderIds: resBody.nextCardOrderIds,
+      createdAt: Date.now()
+    })
+
+    // B3: Cap nhat lai truong columnId thanh cua column moi cua card da keo
+    await cardModel.update(resBody.currentCardId, {
+      columnId: resBody.nextColumnId
+    })
+
+    return { updateResult: 'Successfully!' }
+  } catch (error) {
+    throw error
+  }
+}
+
 export const boardService = {
   createNew,
   getDetails,
-  update
+  update,
+  moveCardToDifferentColumn
 }

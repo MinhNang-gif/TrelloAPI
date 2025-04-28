@@ -17,4 +17,9 @@ Router.route('/:id')
   .get(boardController.getDetails)
   .put(boardValidation.update, boardController.update)
 
+// route dnd card between different column
+Router.route('/supports/moving_cards')
+  .put(boardValidation.moveCardToDifferentColumn, boardController.moveCardToDifferentColumn)
+
+
 export const boardRoute = Router
