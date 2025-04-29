@@ -92,12 +92,28 @@ const getDetails = async (boardId) => {
 }
 
 // Func xu ly them columnId vao cuoi mang columnOrderIds trong collection board
+// Dong $push trong mongodb de push mot columnId vao cuoi mang columnOrderIds
 const pushColumnOrderIds = async (column) => {
   try {
     const result = await GET_DB().collection(BOARD_COLLECTION_NAME).findOneAndUpdate(
       { _id: new ObjectId(column.boardId) }, // dieu kien de tim kiem collection board chua column nay
       { $push: { columnOrderIds: new ObjectId(column._id) } }, // push vao cai gi
       { returnDocument: 'after' } // tra ve collection sau khi update
+    )
+    return result
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+// Xoa columnId cua mang columnOrderIds khi xoa column
+// Dung $pull trong mongodb
+const pullColumnOrderIds = async (column) => {
+  try {
+    const result = await GET_DB().collection(BOARD_COLLECTION_NAME).findOneAndUpdate(
+      { _id: new ObjectId(column.boardId) },
+      { $pull: { columnOrderIds: new ObjectId(column._id) } },
+      { returnDocument: 'after' }
     )
     return result
   } catch (error) {
@@ -136,6 +152,7 @@ export const boardModel = {
   getOneById,
   getDetails,
   pushColumnOrderIds,
+  pullColumnOrderIds,
   update
 }
 

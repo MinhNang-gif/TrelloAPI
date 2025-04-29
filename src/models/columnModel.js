@@ -2,7 +2,6 @@ import Joi from 'joi'
 import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
 import { GET_DB } from '~/config/mongodb'
 import { ObjectId } from 'mongodb'
-// import { cardModel } from './cardModel'
 
 const COLUMN_COLLECTION_NAME = 'columns'
 const COLUMN_COLLECTION_SCHEMA = Joi.object({
@@ -40,10 +39,10 @@ const createNew = async (data) => {
   }
 }
 
-const getOneById = async (id) => {
+const getOneById = async (columnId) => {
   try {
     const result = await GET_DB().collection(COLUMN_COLLECTION_NAME).findOne({
-      _id: new ObjectId(id)
+      _id: new ObjectId(columnId)
     })
     return result
   } catch (error) {
@@ -90,6 +89,14 @@ const update = async (columnId, updateData) => {
   }
 }
 
+const deleteOneById = async (columnId) => {
+  try {
+    const result = await GET_DB().collection(COLUMN_COLLECTION_NAME).deleteOne({ _id: new ObjectId(columnId) })
+    return result
+  } catch (error) {
+    throw new Error(error)
+  }
+}
 
 export const columnModel = {
   COLUMN_COLLECTION_NAME,
@@ -97,5 +104,6 @@ export const columnModel = {
   createNew,
   getOneById,
   pushCardOrderIds,
-  update
+  update,
+  deleteOneById
 }
