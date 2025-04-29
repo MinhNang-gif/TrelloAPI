@@ -1,7 +1,8 @@
-import { columnModel } from '~/models/columnModel'
-// import ApiError from '~/utils/ApiError'
-// import { StatusCodes } from 'http-status-codes'
 import { boardModel } from '~/models/boardModel'
+import { columnModel } from '~/models/columnModel'
+import { cardModel } from '~/models/cardModel'
+import ApiError from '~/utils/ApiError'
+import { StatusCodes } from 'http-status-codes'
 
 const createNew = async (reqBody) => {
   try {
@@ -38,7 +39,32 @@ const update = async (columnId, reqBody) => {
   }
 }
 
+const deleteColumnDetails = async (columnId) => {
+  try {
+    // Tim kiem column dua vao columnId
+    const targetColumn = await columnModel.getOneById(columnId)
+
+    if (!targetColumn) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Column not found!')
+    }
+
+    // B1. Xoa column
+    await columnModel.deleteOneById(columnId)
+
+    // B2. Xoa cards thuoc column do
+    await cardModel.deleteManyCardsById(columnId)
+
+    // B3. Xoa columnId trong columnOrderIds cua collection board
+    await boardModel.pullColumnOrderIds(targetColumn)
+
+    return { deleteResult: 'Column and its Cards are deleted successfully!' }
+  } catch (error) {
+    throw error
+  }
+}
+
 export const columnService = {
   createNew,
-  update
+  update,
+  deleteColumnDetails
 }

@@ -41,10 +41,10 @@ const createNew = async (data) => {
   }
 }
 
-const getOneById = async (id) => {
+const getOneById = async (cardId) => {
   try {
     const result = await GET_DB().collection(CARD_COLLECTION_NAME).findOne({
-      _id: new ObjectId(id)
+      _id: new ObjectId(cardId)
     })
     return result
   } catch (error) {
@@ -76,10 +76,20 @@ const update = async (cardId, updateData) => {
   }
 }
 
+const deleteManyCardsById = async (columnId) => {
+  try {
+    const result = await GET_DB().collection(CARD_COLLECTION_NAME).deleteMany({ columnId: new ObjectId(columnId) })
+    return result
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 export const cardModel = {
   CARD_COLLECTION_NAME,
   CARD_COLLECTION_SCHEMA,
   createNew,
   getOneById,
-  update
+  update,
+  deleteManyCardsById
 }
