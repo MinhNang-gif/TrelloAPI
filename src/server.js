@@ -24,9 +24,17 @@ const START_SERVER = () => {
   // Middleware xu ly loi tap trung
   app.use(errorHandlingMiddleware)
 
-  app.listen(env.APP_PORT, env.APP_HOST, () => {
-    console.log(`3. Hi ${process.env.AUTHOR}, Back-end server is running at http://${ env.APP_HOST }:${ env.APP_PORT }/`)
-  })
+  // Moi truong production
+  if (env.BUILD_MODE === 'production') {
+    app.listen(process.env.PORT, () => {
+      console.log(`3. Production: Hi ${process.env.AUTHOR}, Back-end server is running at Port ${process.env.PORT}`)
+    })
+  } else {
+    // Moi truong local dev
+    app.listen(env.LOCAL_DEV_APP_PORT, env.LOCAL_DEV_APP_HOST, () => {
+      console.log(`3. Local Dev: Hi ${process.env.AUTHOR}, Back-end server is running at http://${ env.LOCAL_DEV_APP_HOST }:${ env.LOCAL_DEV_APP_PORT }/`)
+    })
+  }
 
   // Thuc hien cac tac vu cleanup truoc khi dung server
   exitHook(() => {
