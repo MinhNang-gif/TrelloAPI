@@ -26,7 +26,7 @@ const START_SERVER = () => {
 
   // Moi truong production
   if (env.BUILD_MODE === 'production') {
-    app.listen(process.env.PORT, () => {
+    app.listen(process.env.PORT, () => { // Render se tu sinh PORT cho chung ta
       console.log(`3. Production: Hi ${process.env.AUTHOR}, Back-end server is running at Port ${process.env.PORT}`)
     })
   } else {

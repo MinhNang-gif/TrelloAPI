@@ -3,7 +3,6 @@ import { WHITELIST_DOMAINS } from '~/utils/constants'
 import { env } from './environment'
 import ApiError from '~/utils/ApiError'
 
-
 // Cau hinh CORS options
 export const corsOptions = {
   origin: function(origin, callback) {
