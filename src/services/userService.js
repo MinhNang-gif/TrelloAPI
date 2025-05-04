@@ -4,6 +4,8 @@ import ApiError from '~/utils/ApiError'
 import bcrypt from 'bcryptjs'
 import { v4 as uuidv4 } from 'uuid'
 import { pickUser } from '~/utils/formatters'
+import { WEBSITE_DOMAIN } from '~/utils/constants'
+import { BrevoProvider } from '~/providers/BrevoProvider'
 
 const createNew = async (reqBody) => {
   try {
@@ -23,11 +25,20 @@ const createNew = async (reqBody) => {
       verifyToken: uuidv4()
     }
 
-    // B3. Thuc hien luu thong tin user vao database
+    // B3. Luu thong tin user vao database
     const createdUser = await userModel.createNew(newUser)
     const getNewUser = await userModel.getOneById(createdUser.insertedId)
 
     // B4. Gui email cho nguoi dung xac thuc tai khoan
+    const verificationLink = `${WEBSITE_DOMAIN}/account/verification?email=${getNewUser.email}&token=${getNewUser.verifyToken}`
+    const customSubject = 'Trello: Please verify your email before using our services!'
+    const htmlContent = `
+      <h3>Here is your verification link:</h3>
+      <h3>${verificationLink}</h3>
+      <h3>Sincerely,<br /> - MinhNang - </h3>
+    `
+    // Goi toi cai Provider gui mail
+    await BrevoProvider.sendEmail(getNewUser.email, customSubject, htmlContent)
 
     // B5. return tra ve du lieu cho phia Controller
     return pickUser(getNewUser)
