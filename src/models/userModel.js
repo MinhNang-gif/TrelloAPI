@@ -10,6 +10,7 @@ const USER_ROLES = {
 
 const USER_COLLECTION_NAME = 'users'
 const USER_COLLECTION_SCHEMA = Joi.object({
+  // _id: mongodb se tu sinh
   email: Joi.string().required().pattern(EMAIL_RULE).message(EMAIL_RULE_MESSAGE), // unique
   password: Joi.string().required().pattern(PASSWORD_RULE).message(PASSWORD_RULE_MESSAGE),
   username: Joi.string().required().trim().strict(), // username cat ra tu email se co the kh unique vi co nhung ten email trung nhau nhung tu cac nha cung cap khac nhau
