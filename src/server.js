@@ -7,10 +7,20 @@ import { APIs_V1 } from '~/routes/v1/index'
 import { errorHandlingMiddleware } from '~/middlewares/errorHandlingMiddleware'
 import cors from 'cors'
 import { corsOptions } from './config/cors'
+import cookieParser from 'cookie-parser'
 
 
 const START_SERVER = () => {
   const app = express()
+
+  // Fix cai Cache from disk cua ExpressJS
+  app.use((req, res, next) => {
+    res.set('Cache-Control', 'no-store')
+    next()
+  })
+
+  // Cau hinh Cookie Parser de tra ve cookie cho phia FE
+  app.use(cookieParser())
 
   // Xu ly CORS (ben phia BE)
   app.use(cors(corsOptions))
