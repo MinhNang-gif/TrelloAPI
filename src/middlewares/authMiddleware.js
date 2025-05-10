@@ -33,7 +33,7 @@ const isAuthorized = async (req, res, next) => {
       return
     }
 
-    // Neu accessToken kh hop le do bat ky dieu gi khac vu het han thi cu tra ve ma 401 cho phia FE goi API sign_out luon
+    // Neu accessToken kh hop le do bat ky dieu gi khac vu het han thi cu tra ve ma 401 cho phia FE goi API logout luon
     next(new ApiError(StatusCodes.UNAUTHORIZED, 'Unauthorized!'))
   }
 }
