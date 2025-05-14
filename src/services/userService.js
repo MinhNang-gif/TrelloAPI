@@ -150,9 +150,49 @@ const refreshToken = async (clientRefreshToken) => {
   }
 }
 
+const update = async (userId, reqBody) => {
+  try {
+    // Query user trong DB
+    const user = await userModel.getOneById(userId)
+
+    // Kiem tra
+    if (!user) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Account is not found!')
+    }
+    if (!user.isActive) {
+      throw new ApiError(StatusCodes.NOT_ACCEPTABLE, 'Account is not actived!')
+    }
+
+    // Khoi tao ket qua updated user ban dau la empty
+    let updatedUser = {}
+
+    // Truong hop change password
+    if (reqBody.current_password && reqBody.new_password) {
+      // Kiem tra user nhap current_password dung kh
+      if (!bcrypt.compareSync(reqBody.current_password, user.password)) {
+        throw new ApiError(StatusCodes.NOT_ACCEPTABLE, 'Your current password is incorrect!')
+      }
+      // Neu current_password dung thi hash mot cac mat khau moi va update lai vao DB
+      updatedUser = await userModel.update(user._id, {
+        password: bcrypt.hashSync(reqBody.new_password, 8)
+      })
+    } else {
+      // Truong hop update thong tin chung nhu displayName
+      updatedUser = await userModel.update(user._id, {
+        displayName: reqBody.displayName
+      })
+    }
+
+    return pickUser(updatedUser)
+  } catch (error) {
+    throw error
+  }
+}
+
 export const userService = {
   createNew,
   verifyAccount,
   login,
-  refreshToken
+  refreshToken,
+  update
 }

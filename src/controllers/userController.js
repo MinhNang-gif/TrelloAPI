@@ -48,36 +48,6 @@ const login = async (req, res, next) => {
   }
 }
 
-// const logout = (req, res, next) => {
-//   try {
-//     // Xoa cookie - thuc chat la lam nguoc lai voi viec gan cookie trong ham login
-//     res.clearCookie('accessToken')
-//     res.clearCookie('refreshToken')
-
-//     res.status(StatusCodes.OK).json({ loggedOut: true })
-//   } catch (error) {
-//     next(error)
-//   }
-// }
-
-// const refreshToken = async (req, res, next) => {
-//   try {
-//     const result = await userService.refreshToken(req.cookies?.refreshToken)
-
-//     // Tao ra cookie tuong ung voi accessToken cua ben service tao ra de tra ve phia client
-//     res.cookie('accessToken', result.accessToken, {
-//       httpOnly: true,
-//       secure: true,
-//       sameSite: 'none',
-//       maxAge: ms('14 days')
-//     })
-
-//     res.status(StatusCodes.OK).json(result)
-//   } catch (error) {
-//     next(new ApiError(StatusCodes.FORBIDDEN, 'Please Sign In! (Error from refresh token)')) // 403
-//   }
-// }
-
 const logout = (req, res, next) => {
   try {
     // Xoa cookie - thuc chat la lam nguoc lai voi viec gan cookie trong ham login
@@ -94,7 +64,7 @@ const refreshToken = async (req, res, next) => {
   try {
     const result = await userService.refreshToken(req.cookies?.refreshToken)
 
-    // Xu ly http only cookie: Tao cookie tuong ung voi accessToken tra ve tu userService de tra ve phia client
+    // Tao ra cookie tuong ung voi accessToken cua ben service tao ra de tra ve phia client
     res.cookie('accessToken', result.accessToken, {
       httpOnly: true,
       secure: true,
@@ -104,7 +74,17 @@ const refreshToken = async (req, res, next) => {
 
     res.status(StatusCodes.OK).json(result)
   } catch (error) {
-    next(new ApiError(StatusCodes.FORBIDDEN, 'Please sign in!'))
+    next(new ApiError(StatusCodes.FORBIDDEN, 'Please Sign In! (Error from refresh token)')) // 403
+  }
+}
+
+const update = async (req, res, next) => {
+  try {
+    const userId = req.jwtDecoded._id // req.jwtDecoded lay tu ben authMiddleware
+    const updatedUser = await userService.update(userId, req.body)
+    res.status(StatusCodes.OK).json(updatedUser)
+  } catch (error) {
+    next(error)
   }
 }
 
@@ -113,5 +93,6 @@ export const userController = {
   verifyAccount,
   login,
   logout,
-  refreshToken
+  refreshToken,
+  update
 }

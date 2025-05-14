@@ -17,7 +17,6 @@ const isAuthorized = async (req, res, next) => {
   try {
     // B1. Thuc hien giai ma (xac thuc) token xem no co hop le kh
     const accessTokenDecoded = await JwtProvider.verifyToken(clientAccessToken, env.ACCESS_TOKEN_SECRET_SIGNATURE)
-    // console.log('accessTokenDecoded: ', accessTokenDecoded)
 
     // B2. Neu token hop le, can luu thong tin giai ma duoc vao req.jwtDecoded de su dung cho cac tang xu ly phia sau
     req.jwtDecoded = accessTokenDecoded
