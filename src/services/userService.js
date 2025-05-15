@@ -7,6 +7,7 @@ import { pickUser } from '~/utils/formatters'
 import { WEBSITE_DOMAIN } from '~/utils/constants'
 import { env } from '~/config/environment'
 import { BrevoProvider } from '~/providers/BrevoProvider'
+import { CloudinaryProvider } from '~/providers/CloudinaryProvider'
 import { JwtProvider } from '~/providers/JwtProvider'
 
 const createNew = async (reqBody) => {
@@ -150,7 +151,7 @@ const refreshToken = async (clientRefreshToken) => {
   }
 }
 
-const update = async (userId, reqBody) => {
+const update = async (userId, reqBody, userAvatarFile) => {
   try {
     // Query user trong DB
     const user = await userModel.getOneById(userId)
@@ -166,7 +167,7 @@ const update = async (userId, reqBody) => {
     // Khoi tao ket qua updated user ban dau la empty
     let updatedUser = {}
 
-    // Truong hop change password
+    /** Truong hop change password */
     if (reqBody.current_password && reqBody.new_password) {
       // Kiem tra user nhap current_password dung kh
       if (!bcrypt.compareSync(reqBody.current_password, user.password)) {
@@ -176,8 +177,16 @@ const update = async (userId, reqBody) => {
       updatedUser = await userModel.update(user._id, {
         password: bcrypt.hashSync(reqBody.new_password, 8)
       })
+    } else if (userAvatarFile) {
+      /** Truong hop upload file len Cloud Storage, cu the la Cloudinary */
+      const uploadResult = await CloudinaryProvider.streamUpload(userAvatarFile.buffer, 'users')
+
+      // Luu url (secure_url) cua file hinh anh nhan duoc sau khi upload len Cloudinary vao DB
+      updatedUser = await userModel.update(user._id, {
+        avatar: uploadResult.secure_url
+      })
     } else {
-      // Truong hop update thong tin chung nhu displayName
+      /** Truong hop update thong tin chung nhu displayName */
       updatedUser = await userModel.update(user._id, {
         displayName: reqBody.displayName
       })
