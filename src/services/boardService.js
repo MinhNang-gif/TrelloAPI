@@ -6,6 +6,7 @@ import { StatusCodes } from 'http-status-codes'
 import { cloneDeep } from 'lodash'
 import { columnModel } from '~/models/columnModel'
 import { cardModel } from '~/models/cardModel'
+import { DEFAULT_PAGE, DEFAULT_ITEMS_PER_PAGE } from '~/utils/constants'
 
 const createNew = async (reqBody) => {
   try {
@@ -91,9 +92,24 @@ const moveCardToDifferentColumn = async (resBody) => {
   }
 }
 
+const getBoards = async (userId, page, itemsPerPage) => {
+  try {
+    // Neu kh ton tai page hoac itemsPerPage tu phia FE day len thi BE se luon gan cho no gia tri mac dinh
+    if (!page) page = DEFAULT_PAGE
+    if (!itemsPerPage) itemsPerPage = DEFAULT_ITEMS_PER_PAGE
+
+    const result = await boardModel.getBoards(userId, parseInt(page, 10), parseInt(itemsPerPage, 10)) // page & itemsPerPage nhan duoc tu FE thong qua req.query la dang string, can chuyen ve dang int de xu ly
+
+    return result
+  } catch (error) {
+    throw error
+  }
+}
+
 export const boardService = {
   createNew,
   getDetails,
   update,
-  moveCardToDifferentColumn
+  moveCardToDifferentColumn,
+  getBoards
 }
