@@ -8,7 +8,7 @@ import { columnModel } from '~/models/columnModel'
 import { cardModel } from '~/models/cardModel'
 import { DEFAULT_PAGE, DEFAULT_ITEMS_PER_PAGE } from '~/utils/constants'
 
-const createNew = async (reqBody) => {
+const createNew = async (userId, reqBody) => {
   try {
     // Xu ly logic du lieu dac thu cua du an
     const newBoard = {
@@ -17,7 +17,7 @@ const createNew = async (reqBody) => {
     }
 
     // Goi toi tang Model de xu ly luu ban ghi newBoard vao Database
-    const createdBoard = await boardModel.createNew(newBoard)
+    const createdBoard = await boardModel.createNew(userId, newBoard)
 
     // Lay toan bo du lieu tu ban ghi sau khi tao (tuy vao du an ma co thuc hien buoc nay kh)
     const getNewBoard = await boardModel.getOneById(createdBoard.insertedId)
@@ -29,9 +29,9 @@ const createNew = async (reqBody) => {
   }
 }
 
-const getDetails = async (boardId) => {
+const getDetails = async (userId, boardId) => {
   try {
-    const board = await boardModel.getDetails(boardId)
+    const board = await boardModel.getDetails(userId, boardId)
 
     if (!board)
       throw new ApiError(StatusCodes.NOT_FOUND, 'Board not found')

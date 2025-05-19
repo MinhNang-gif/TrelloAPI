@@ -36,11 +36,16 @@ const validateBeforeCreate = async (data) => {
 }
 
 // Choc vao database de tao ban ghi sau do gui du lieu ve tang service
-const createNew = async (data) => { // data la du lieu nhan duoc phia service
+const createNew = async (userId, data) => { // data la du lieu nhan duoc phia service
   try {
     const validData = await validateBeforeCreate(data)
 
-    const createdBoard = await GET_DB().collection(BOARD_COLLECTION_NAME).insertOne(validData) // insertOne dung de chen mot ban ghi vao mot collection trong mongodb
+    const boardToAdd = {
+      ...validData,
+      ownerIds: [new ObjectId(userId)] // Khi tao 1 board moi thi gan userId cua user thuc hien req tao moi board lam chu cua board do
+    }
+
+    const createdBoard = await GET_DB().collection(BOARD_COLLECTION_NAME).insertOne(boardToAdd) // insertOne dung de chen mot ban ghi vao mot collection trong mongodb
     return createdBoard
   } catch (error) {
     throw new Error(error) // dung new Error thi moi tra ve stack trace, con error thi kh
@@ -60,19 +65,23 @@ const getOneById = async (id) => {
 }
 
 // Query tong hop (aggregate) de lay toan bo columns & cards thuoc ve board
-const getDetails = async (boardId) => {
+const getDetails = async (userId, boardId) => {
   try {
     // const result = await GET_DB().collection(BOARD_COLLECTION_NAME).findOne({
     //   _id: new ObjectId(boardId)
     // })
 
+    const queryConditions = [
+      { _id: new ObjectId(boardId) },
+      { _destroy: false },
+      { $or: [
+        { ownerIds: { $all: [new ObjectId(userId)] } },
+        { memberIds: { $all: [new ObjectId(userId)] } }
+      ] }
+    ]
+
     const result = await GET_DB().collection(BOARD_COLLECTION_NAME).aggregate([
-      {
-        $match: {
-          _id: new ObjectId(boardId),
-          _destroy: false
-        }
-      },
+      { $match: { $and: queryConditions } },
       {
         $lookup: {
           from: columnModel.COLUMN_COLLECTION_NAME,

@@ -3,8 +3,9 @@ import { boardService } from '~/services/boardService'
 
 const createNew = async (req, res, next) => {
   try {
+    const userId = req.jwtDecoded._id
     // Dieu huong du lieu sang tang service
-    const createdBoard = await boardService.createNew(req.body)
+    const createdBoard = await boardService.createNew(userId, req.body)
 
     // Co ket qua thi tra ve phia Client
     res.status(StatusCodes.CREATED).json(createdBoard)
@@ -15,8 +16,11 @@ const createNew = async (req, res, next) => {
 
 const getDetails = async (req, res, next) => {
   try {
+    const userId = req.jwtDecoded._id // de kiem tra quyen truy cap cua user khi truy cap vao mot board cu the
     const boardId = req.params.id // id nay nhan duoc tu /:id ben boardRoute
-    const board = await boardService.getDetails(boardId)
+
+    const board = await boardService.getDetails(userId, boardId)
+
     res.status(StatusCodes.OK).json(board)
   } catch (error) {
     next(error)
