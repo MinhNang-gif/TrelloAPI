@@ -1,5 +1,5 @@
 import Joi from 'joi'
-import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
+import { EMAIL_RULE, EMAIL_RULE_MESSAGE, OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
 import { GET_DB } from '~/config/mongodb'
 import { ObjectId } from 'mongodb'
 
@@ -7,8 +7,24 @@ const CARD_COLLECTION_NAME = 'cards'
 const CARD_COLLECTION_SCHEMA = Joi.object({
   boardId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
   columnId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
+
   title: Joi.string().required().min(3).max(50).trim().strict(),
   description: Joi.string().optional(),
+
+  cover: Joi.string().default(null),
+  memberIds: Joi.array().items(
+    Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)
+  ).default([]),
+  // Du lieu comments cua Card se nhung vao ban ghi Card luon nhu sau:
+  comments: Joi.array().items({
+    userId: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
+    userEmail: Joi.string().pattern(EMAIL_RULE).message(EMAIL_RULE_MESSAGE),
+    userAvatar: Joi.string(),
+    userDisplayName: Joi.string(),
+    content: Joi.string(),
+    // Vi dung ham $push de them comment nen kh set default Date.now() luon giong ham insertOne khi create duoc
+    commentedAt:Joi.date().timestamp()
+  }).default([]),
 
   createdAt: Joi.date().timestamp('javascript').default(Date.now),
   updatedAt: Joi.date().timestamp('javascript').default(null),
@@ -70,6 +86,7 @@ const update = async (cardId, updateData) => {
       { $set: updateData },
       { returnDocument: 'after' }
     )
+
     return result
   } catch (error) {
     throw new Error(error)
