@@ -93,6 +93,24 @@ const update = async (cardId, updateData) => {
   }
 }
 
+/** Day mot phan tu comment vao dau mang comments
+ * Trong mongodb hien tai chi co $push - mac dinh day phan tu vao cuoi mang
+ * Muon day phan tu vao dau mang: van dung $push, nhung boc data vao Array de trong $each va chi dinh $position: 0
+ */
+const unshiftNewComment = async (cardId, commentData) => {
+  try {
+    const result = await GET_DB().collection(CARD_COLLECTION_NAME).findOneAndUpdate(
+      { _id: new ObjectId(cardId) },
+      { $push: { comments: { $each: [commentData], $position: 0 } } },
+      { returnDocument: 'after' }
+    )
+
+    return result
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 const deleteManyCardsById = async (columnId) => {
   try {
     const result = await GET_DB().collection(CARD_COLLECTION_NAME).deleteMany({ columnId: new ObjectId(columnId) })
@@ -108,5 +126,6 @@ export const cardModel = {
   createNew,
   getOneById,
   update,
+  unshiftNewComment,
   deleteManyCardsById
 }

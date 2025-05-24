@@ -21,7 +21,7 @@ const createNew = async (reqBody) => {
   }
 }
 
-const update = async (cardId, reqBody, cardCoverFile) => {
+const update = async (cardId, reqBody, cardCoverFile, userInfo) => {
   try {
     const updateData = {
       ...reqBody,
@@ -38,6 +38,18 @@ const update = async (cardId, reqBody, cardCoverFile) => {
       updateCard = await cardModel.update(cardId, {
         cover: uploadResult.secure_url
       })
+    } else if (updateData.commentToAdd) {
+      // Truong hop add comment
+      // Tao du lieu comment de them vao DB, bo sung them cac field can thiet de day du du lieu nhu trong schema comments cua cardModel
+      const commentData = {
+        ...updateData.commentToAdd, // day la 3 fields userAvatar, userDisplayName, content ma ben FE day len
+        commentedAt: Date.now(),
+        // userId & userEmail se lay tu token
+        userId: userInfo._id,
+        userEmail: userInfo.email
+      }
+
+      updateCard = await cardModel.unshiftNewComment(cardId, commentData)
     } else {
       // Cac truong hop update chung nhu title, description
       updateCard = await cardModel.update(cardId, updateData)

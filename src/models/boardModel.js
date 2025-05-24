@@ -15,7 +15,9 @@ const BOARD_COLLECTION_SCHEMA = Joi.object({
   title: Joi.string().required().min(3).max(50).trim().strict(),
   slug: Joi.string().required().min(3).trim().strict(),
   description: Joi.string().required().min(3).max(256).trim().strict(),
-  type: Joi.string().valid(BOARD_TYPES.PUBLIC, BOARD_TYPES.PRIVATE).required(),
+
+  // Thay vi goi lan luot tat ca cac type cua board de cho vao ham valid() thi co the viet gon lai bang Object.values() ket hop Spread Operator
+  type: Joi.string().valid(...Object.values(BOARD_TYPES)),
 
   // Cac item trong mang columnOrderIds la ObjectId nen can them pattern
   columnOrderIds: Joi.array().items(Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)).default([]),
