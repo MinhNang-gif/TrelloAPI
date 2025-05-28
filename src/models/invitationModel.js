@@ -3,6 +3,8 @@ import { ObjectId } from 'mongodb'
 import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
 import { GET_DB } from '~/config/mongodb'
 import { BOARD_INVITATION_STATUS, INVITATION_TYPES } from '~/utils/constants'
+import { userModel } from './userModel'
+import { boardModel } from './boardModel'
 
 // Define Collection (name & schema)
 const INVITATION_COLLECTION_NAME = 'invitations'
@@ -98,11 +100,56 @@ const update = async (invitationId, updateData) => {
   }
 }
 
+// Query tong hop aggregate de lay nhung ban ghi invitation thuoc ve mot user cu the
+const getByUser = async (userId) => {
+  try {
+    const queryConditions = [
+      { inviteeId: new ObjectId(userId) }, // tim kiem theo nguoi duoc moi, chinh la nguoi thuc hien req nay
+      { _destroy: false }
+    ]
+
+    const results = await GET_DB().collection(INVITATION_COLLECTION_NAME).aggregate([
+      { $match: { $and: queryConditions } },
+      {
+        $lookup: {
+          from: userModel.USER_COLLECTION_NAME,
+          localField: 'inviterId', // lay theo nguoi di moi
+          foreignField: '_id', // userId cua ben userModel
+          as: 'inviter',
+          pipeline: [{ $project: { 'password': 0, 'verifyToken': 0 } }]
+        }
+      },
+      {
+        $lookup: {
+          from: userModel.USER_COLLECTION_NAME,
+          localField: 'inviteeId', // lay theo nguoi duoc moi
+          foreignField: '_id',
+          as: 'invitee',
+          pipeline: [{ $project: { 'password': 0, 'verifyToken': 0 } }]
+        }
+      },
+      {
+        $lookup: {
+          from: boardModel.BOARD_COLLECTION_NAME,
+          localField: 'boardInvitation.boardId', // lay thong tin board
+          foreignField: '_id', // boardId lay ben boardModel
+          as: 'board'
+        }
+      }
+    ]).toArray()
+
+    return results
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 
 export const invitationModel = {
   INVITATION_COLLECTION_NAME,
   INVITATION_COLLECTION_SCHEMA,
   createNewBoardInvitation,
   getOneById,
-  update
+  update,
+  getByUser
 }

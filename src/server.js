@@ -8,6 +8,11 @@ import { errorHandlingMiddleware } from '~/middlewares/errorHandlingMiddleware'
 import cors from 'cors'
 import { corsOptions } from './config/cors'
 import cookieParser from 'cookie-parser'
+// Xu ly socket real-time voi thu vien socket.io
+// https://socket.io/get-started/chat/#integrating-socketio
+import http from 'http'
+import socketIo from 'socket.io'
+import { inviteUserToBoardSocket } from './sockets/inviteUserToBoardSocket'
 
 
 const START_SERVER = () => {
@@ -34,14 +39,25 @@ const START_SERVER = () => {
   // Middleware xu ly loi tap trung
   app.use(errorHandlingMiddleware)
 
+  // Tao mot cai server moi boc thang app cua express de lam real-time voi socket.io
+  const server = http.createServer(app)
+  // Khoi tao bien io voi server va cors
+  const io = socketIo(server, { cors: corsOptions })
+  io.on('connection', (socket) => {
+    // Goi cac socket tuy tinh nang o day
+    inviteUserToBoardSocket(socket)
+  })
+
   // Moi truong production
   if (env.BUILD_MODE === 'production') {
-    app.listen(process.env.PORT, () => { // Render se tu sinh PORT cho chung ta
+    // Dung server.listen thay vi app.listen vi luc nay server da bao gom express app va da config socket.io
+    server.listen(process.env.PORT, () => { // Render se tu sinh PORT cho chung ta
       console.log(`3. Production: Hi ${process.env.AUTHOR}, Back-end server is running at Port ${process.env.PORT}`)
     })
   } else {
     // Moi truong local dev
-    app.listen(env.LOCAL_DEV_APP_PORT, env.LOCAL_DEV_APP_HOST, () => {
+    // Dung server.listen thay vi app.listen vi luc nay server da bao gom express app va da config socket.io
+    server.listen(env.LOCAL_DEV_APP_PORT, env.LOCAL_DEV_APP_HOST, () => {
       console.log(`3. Local Dev: Hi ${process.env.AUTHOR}, Back-end server is running at http://${ env.LOCAL_DEV_APP_HOST }:${ env.LOCAL_DEV_APP_PORT }/`)
     })
   }

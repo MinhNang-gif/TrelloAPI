@@ -10,7 +10,7 @@ import { userModel } from './userModel'
 import { pagingSkipValue } from '~/utils/algorithms'
 
 
-const BOARD_COLLECTION_NAME = 'boards'
+export const BOARD_COLLECTION_NAME = 'boards'
 const BOARD_COLLECTION_SCHEMA = Joi.object({
   title: Joi.string().required().min(3).max(50).trim().strict(),
   slug: Joi.string().required().min(3).trim().strict(),
@@ -60,10 +60,10 @@ const createNew = async (userId, data) => { // data la du lieu nhan duoc phia se
 }
 
 // Choc vao database mot lan nua de lay toan bo du lieu tu db (db compass) ve (postman) de hien thi cho nguoi dung dua vao id
-const getOneById = async (id) => {
+const getOneById = async (boardId) => {
   try {
     const result = await GET_DB().collection(BOARD_COLLECTION_NAME).findOne({
-      _id: new ObjectId(id) // findOne nhan id duoi dang ObjectId chu kh phai string
+      _id: new ObjectId(boardId) // findOne nhan id duoi dang ObjectId chu kh phai string
     })
     return result
   } catch (error) {
@@ -236,6 +236,19 @@ const getBoards = async (userId, page, itemsPerPage) => {
   }
 }
 
+const pushMemberIds = async (boardId, userId) => {
+  try {
+    const result = await GET_DB().collection(BOARD_COLLECTION_NAME).findOneAndUpdate(
+      { _id: new ObjectId(boardId) }, // dieu kien tim kiem, de biet can cap nhat vao board nao
+      { $push: { memberIds: new ObjectId(userId) } },
+      { returnDocument: 'after' }
+    )
+    return result
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 export const boardModel = {
   BOARD_COLLECTION_NAME,
   BOARD_COLLECTION_SCHEMA,
@@ -245,6 +258,7 @@ export const boardModel = {
   pushColumnOrderIds,
   pullColumnOrderIds,
   update,
-  getBoards
+  getBoards,
+  pushMemberIds
 }
 
