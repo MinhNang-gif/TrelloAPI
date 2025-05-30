@@ -2,6 +2,7 @@ import Joi from 'joi'
 import { EMAIL_RULE, EMAIL_RULE_MESSAGE, OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
 import { GET_DB } from '~/config/mongodb'
 import { ObjectId } from 'mongodb'
+import { CARD_MEMBER_ACTIONS } from '~/utils/constants'
 
 const CARD_COLLECTION_NAME = 'cards'
 const CARD_COLLECTION_SCHEMA = Joi.object({
@@ -120,6 +121,31 @@ const deleteManyCardsById = async (columnId) => {
   }
 }
 
+// Func nay co nhiem vu them hoac xoa thanh vien khoi card
+const updateCardMembers = async (cardId, incomingMemberInfo) => {
+  try {
+    let updatedMembers = {}
+
+    // Truong hop them thanh vien vao card
+    if (incomingMemberInfo.action === CARD_MEMBER_ACTIONS.ADD) {
+      updatedMembers = { $push: { memberIds: new ObjectId(incomingMemberInfo.userId) } }
+    }
+    // Truong hop xoa thanh vien khoi card
+    if (incomingMemberInfo.action === CARD_MEMBER_ACTIONS.REMOVE) {
+      updatedMembers = { $pull: { memberIds: new ObjectId(incomingMemberInfo.userId) } }
+    }
+
+    const result = await GET_DB().collection(CARD_COLLECTION_NAME).findOneAndUpdate(
+      { _id: new ObjectId(cardId) },
+      updatedMembers,
+      { returnDocument: 'after' }
+    )
+    return result
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 export const cardModel = {
   CARD_COLLECTION_NAME,
   CARD_COLLECTION_SCHEMA,
@@ -127,5 +153,6 @@ export const cardModel = {
   getOneById,
   update,
   unshiftNewComment,
-  deleteManyCardsById
+  deleteManyCardsById,
+  updateCardMembers
 }
