@@ -187,7 +187,7 @@ const update = async (boardId, updateData) => {
   }
 }
 
-const getBoards = async (userId, page, itemsPerPage) => {
+const getBoards = async (userId, page, itemsPerPage, queryFilters) => {
   try {
     const queryConditions = [
       // Dieu kien 1: Board chua bi xoa
@@ -198,6 +198,17 @@ const getBoards = async (userId, page, itemsPerPage) => {
         { memberIds: { $all: [new ObjectId(userId)] } }
       ] }
     ]
+
+    // Xu ly query filter cho tung truong hop search board, vi du search theo title
+    if (queryFilters) {
+      Object.keys(queryFilters).forEach(key => {
+        // Co phan biet chu hoa chu thuong
+        // queryConditions.push({ [key]: { $regex: queryFilters[key] } })
+
+        // Kh phan biet chu hoa chu thuong
+        queryConditions.push({ [key]: { $regex: new RegExp(queryFilters[key], 'i') } })
+      })
+    }
 
     const query = await GET_DB().collection(BOARD_COLLECTION_NAME).aggregate(
       [

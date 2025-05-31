@@ -92,13 +92,17 @@ const moveCardToDifferentColumn = async (resBody) => {
   }
 }
 
-const getBoards = async (userId, page, itemsPerPage) => {
+const getBoards = async (userId, page, itemsPerPage, queryFilters) => {
   try {
     // Neu kh ton tai page hoac itemsPerPage tu phia FE day len thi BE se luon gan cho no gia tri mac dinh
     if (!page) page = DEFAULT_PAGE
     if (!itemsPerPage) itemsPerPage = DEFAULT_ITEMS_PER_PAGE
 
-    const result = await boardModel.getBoards(userId, parseInt(page, 10), parseInt(itemsPerPage, 10)) // page & itemsPerPage nhan duoc tu FE thong qua req.query la dang string, can chuyen ve dang int de xu ly
+    const result = await boardModel.getBoards(userId,
+      parseInt(page, 10),
+      parseInt(itemsPerPage, 10),
+      queryFilters
+    ) // page & itemsPerPage nhan duoc tu FE thong qua req.query la dang string, can chuyen ve dang int de xu ly
 
     return result
   } catch (error) {
