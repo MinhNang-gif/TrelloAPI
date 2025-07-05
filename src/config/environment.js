@@ -1,4 +1,4 @@
-import 'dotenv/config' // de goi duoc bien moi truong ben file .env thong qua process.env
+import 'dotenv/config' // dung de goi duoc bien moi truong ben file .env thong qua process.env
 
 export const env = {
   MONGODB_URI: process.env.MONGODB_URI,

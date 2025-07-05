@@ -12,6 +12,7 @@ const isAuthorized = async (req, res, next) => {
   // Neu clientAccessToken kh ton tai thi tra ve loi luon
   if (!clientAccessToken) {
     next(new ApiError(StatusCodes.UNAUTHORIZED, 'Unauthorized! (token is not found)')) // next(...) de chuyen den phan xu ly loi tap trung
+    return
   }
 
   try {
